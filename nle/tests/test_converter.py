@@ -87,7 +87,8 @@ class TestConverter:
 
     def test_no_memleak(self):
         pytest.skip(
-            "Test is flaky (https://github.com/heiner/nle/actions/runs/8943546654/job/24568502821)"
+            "Test is flaky "
+            "(https://github.com/heiner/nle/actions/runs/8943546654/job/24568502821)"
         )
 
         chars = np.zeros((SEQ_LENGTH, ROWS, COLUMNS), dtype=np.uint8)

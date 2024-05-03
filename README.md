@@ -1,4 +1,4 @@
-![NetHack Learning Environment (NLE)](https://github.com/facebookresearch/nle/raw/main/dat/nle/logo.png)
+![NetHack Learning Environment (NLE)](https://github.com/heiner/nle/raw/main/dat/nle/logo.png)
 
 --------------------------------------------------------------------------------
 
@@ -6,8 +6,8 @@
   <a href="https://circleci.com/gh/facebookresearch/nle">
     <img src="https://circleci.com/gh/facebookresearch/nle.svg?style=shield" />
   </a>
-  <a href="https://github.com/facebookresearch/nle/actions/workflows/build_docker.yml">
-    <img src="https://github.com/facebookresearch/nle/actions/workflows/test_and_deploy.yml/badge.svg?branch=main" />
+  <a href="https://github.com/heiner/nle/actions/workflows/build_docker.yml">
+    <img src="https://github.com/heiner/nle/actions/workflows/test_and_deploy.yml/badge.svg?branch=main" />
   </a>
   <a href="https://pypi.python.org/pypi/nle/">
     <img src="https://img.shields.io/pypi/v/nle.svg" />
@@ -35,7 +35,7 @@ You can read more about NLE in the [NeurIPS 2020 paper](https://arxiv.org/abs/20
 README](./README.nh), at [nethack.org](https://nethack.org/), and on the
 [NetHack wiki](https://nethackwiki.com).
 
-![Example of an agent running on NLE](https://github.com/facebookresearch/nle/raw/main/dat/nle/example_run.gif)
+![Example of an agent running on NLE](https://github.com/heiner/nle/raw/main/dat/nle/example_run.gif)
 
 ### NLE Language Wrapper
 
@@ -70,7 +70,7 @@ Otherwise checkout the tutorial Colab notebook [here](https://colab.research.goo
 - Küttler et al. [The NetHack Learning Environment](https://arxiv.org/abs/2006.13760) (FAIR, Oxford, NYU, Imperial, UCL, NeurIPS 2020).
 
 Open a [pull
-request](https://github.com/facebookresearch/nle/edit/main/README.md)
+request](https://github.com/heiner/nle/edit/main/README.md)
 to add papers.
 
 # Getting started
@@ -119,7 +119,7 @@ $ pip install nle
 NOTE: If you want to extend / develop NLE, please install the package as follows:
 
 ``` bash
-$ git clone https://github.com/facebookresearch/nle --recursive
+$ git clone https://github.com/heiner/nle --recursive
 $ pip install -e ".[dev]"
 $ pre-commit install
 ```

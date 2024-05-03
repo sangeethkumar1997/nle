@@ -67,15 +67,11 @@ def getfilename(filename):
     return os.path.join(os.path.dirname(os.path.realpath(__file__)), filename)
 
 
-def load_and_convert(
-    converter, ttyrec, chars, colors, cursors, timestamps, actions, scores
-):
+def load_and_convert(converter, ttyrec, chars, colors, cursors, timestamps, actions, scores):
     converter.load_ttyrec(ttyrec)
     remaining = converter.convert(chars, colors, cursors, timestamps, actions, scores)
     while remaining == 0:
-        remaining = converter.convert(
-            chars, colors, cursors, timestamps, actions, scores
-        )
+        remaining = converter.convert(chars, colors, cursors, timestamps, actions, scores)
 
 
 class TestConverter:
@@ -86,6 +82,10 @@ class TestConverter:
         assert converter.is_loaded()
 
     def test_no_memleak(self):
+        pytest.skip(
+            "Test is flaky (https://github.com/heiner/nle/actions/runs/8943546654/job/24568502821)"
+        )
+
         chars = np.zeros((SEQ_LENGTH, ROWS, COLUMNS), dtype=np.uint8)
         colors = np.zeros((SEQ_LENGTH, ROWS, COLUMNS), dtype=np.int8)
         cursors = np.zeros((SEQ_LENGTH, 2), dtype=np.int16)
@@ -125,9 +125,7 @@ class TestConverter:
         scores = np.zeros((seq_length), dtype=np.int32)
 
         converter.load_ttyrec(getfilename(TTYREC_2018))
-        remaining = converter.convert(
-            chars, colors, cursors, timestamps, actions, scores
-        )
+        remaining = converter.convert(chars, colors, cursors, timestamps, actions, scores)
         assert remaining == 165
 
     def test_data(self):
@@ -151,9 +149,7 @@ class TestConverter:
 
         num_frames = 0
         while True:
-            remaining = converter.convert(
-                chars, colors, cursors, timestamps, actions, scores
-            )
+            remaining = converter.convert(chars, colors, cursors, timestamps, actions, scores)
             for (row, col), ts in zip(
                 cursors[: SEQ_LENGTH - remaining], timestamps[: SEQ_LENGTH - remaining]
             ):
@@ -207,9 +203,7 @@ class TestConverter:
         cursors = np.zeros((10, 2), dtype=np.int16)
         with pytest.raises(
             ValueError,
-            match=re.escape(
-                "Array has wrong shape (expected [ 10 25 80 ], got [ 10 25 79 ])"
-            ),
+            match=re.escape("Array has wrong shape (expected [ 10 25 80 ], got [ 10 25 79 ])"),
         ):
             converter.convert(chars, colors, cursors, timestamps, actions, scores)
 
@@ -218,9 +212,7 @@ class TestConverter:
         cursors = np.zeros((10, 2), dtype=np.int16)
         with pytest.raises(
             ValueError,
-            match=re.escape(
-                "Array has wrong shape (expected [ 10 25 80 ], got [ 10 24 80 ])"
-            ),
+            match=re.escape("Array has wrong shape (expected [ 10 25 80 ], got [ 10 24 80 ])"),
         ):
             converter.convert(chars, colors, cursors, timestamps, actions, scores)
 
@@ -296,9 +288,7 @@ class TestConverter:
         scores = np.zeros((seq_length), dtype=np.int32)
 
         converter.load_ttyrec(getfilename(TTYREC_IBMGRAPHICS))
-        assert (
-            converter.convert(chars, colors, cursors, timestamps, actions, scores) == 0
-        )
+        assert converter.convert(chars, colors, cursors, timestamps, actions, scores) == 0
 
         with open(getfilename(TTYREC_IBMGRAPHICS_FRAME_10)) as f:
             for row, line in enumerate(f):
@@ -318,9 +308,7 @@ class TestConverter:
         scores = np.zeros((seq_length), dtype=np.int32)
 
         converter.load_ttyrec(getfilename(TTYREC_DECGRAPHICS))
-        assert (
-            converter.convert(chars, colors, cursors, timestamps, actions, scores) == 0
-        )
+        assert converter.convert(chars, colors, cursors, timestamps, actions, scores) == 0
 
         with open(getfilename(TTYREC_DECGRAPHICS_FRAME_10)) as f:
             for row, line in enumerate(f):
@@ -340,9 +328,7 @@ class TestConverter:
         scores = np.zeros((seq_length), dtype=np.int32)
 
         converter.load_ttyrec(getfilename(TTYREC_UNKGRAPHICS))
-        assert (
-            converter.convert(chars, colors, cursors, timestamps, actions, scores) == 0
-        )
+        assert converter.convert(chars, colors, cursors, timestamps, actions, scores) == 0
 
         with open(getfilename(TTYREC_UNKGRAPHICS_FRAME_10)) as f:
             for row, line in enumerate(f):
@@ -362,9 +348,7 @@ class TestConverter:
         scores = np.zeros((seq_length), dtype=np.int32)
 
         converter.load_ttyrec(getfilename(TTYREC_SHIFTIN))
-        assert (
-            converter.convert(chars, colors, cursors, timestamps, actions, scores) == 0
-        )
+        assert converter.convert(chars, colors, cursors, timestamps, actions, scores) == 0
 
         with open(getfilename(TTYREC_SHIFTIN_FRAME_10)) as f:
             for row, line in enumerate(f):
@@ -384,9 +368,7 @@ class TestConverter:
         scores = np.zeros((seq_length), dtype=np.int32)
 
         converter.load_ttyrec(getfilename(TTYREC_NLE_V2))
-        assert (
-            converter.convert(chars, colors, cursors, timestamps, actions, scores) == 0
-        )
+        assert converter.convert(chars, colors, cursors, timestamps, actions, scores) == 0
 
         with open(getfilename(TTYREC_NLE_V2_FRAME_150)) as f:
             for row, line in enumerate(f):
@@ -409,9 +391,7 @@ class TestConverter:
         scores = np.zeros((seq_length), dtype=np.int32)
 
         converter.load_ttyrec(getfilename(TTYREC_NLE_V3))
-        assert (
-            converter.convert(chars, colors, cursors, timestamps, actions, scores) == 1
-        )
+        assert converter.convert(chars, colors, cursors, timestamps, actions, scores) == 1
 
         with open(getfilename(TTYREC_NLE_V3_FRAME_44)) as f:
             for row, line in enumerate(f):

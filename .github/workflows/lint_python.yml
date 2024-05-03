@@ -13,25 +13,17 @@ on:
 
 jobs:
   check_python:
-    name: "Black & flake8"
+    name: "Check Python linting"
 
     runs-on: ubuntu-latest
 
     steps:
-    - name: Setup Python 3.8 env
-      uses: actions/setup-python@v1
+    - uses: actions/setup-python@v5
       with:
-        python-version: "3.8"
-    - name: Clone NLE repo
-      uses: actions/checkout@v2
-    - name: Ensure latest pip
-      run: "python -m pip install -q --upgrade pip"
-    - name: Install python linting deps
-      run: "pip install -q black flake8 flake8-bugbear isort"
-    - name: Run black
-      run: "black --check --diff ."
-    - name: Run flake8
-      run: "flake8"
-    - name: Run isort
-      run: "isort -c --diff nle/"
+        python-version: "3.12"
+    - uses: actions/checkout@v4
+    - run: "pip install -q uv && uv pip install --system ruff flake8 flake8-bugbear isort"
+    - run: "ruff format --check --diff ."
+    - run: "flake8"
+    - run: "isort -c --diff nle/"
 ...

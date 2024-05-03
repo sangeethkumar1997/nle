@@ -40,7 +40,7 @@ class TestDataset:
             yield tp
 
     def test_setup(self, conn):  # noqa: F811
-        files = [db.get_row(f"{i+1}", conn=conn)[1] for i in range(9)]
+        files = [db.get_row(str(i), conn=conn)[1] for i in range(1, 10)]
         names = ["aaa", "bbb", "ccc"]
         assert files == [f"{a}/{b}.ttyrec.bz2" for a in names for b in names]
 

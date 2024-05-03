@@ -2,6 +2,13 @@
 name: Test nle PyPI package
 
 on:
+  push:
+    branches:
+      - main
+  pull_request:
+  release:
+    types: [released]
+
 
 jobs:
   test_install:

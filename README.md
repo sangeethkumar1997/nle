@@ -6,7 +6,7 @@
   <a href="https://circleci.com/gh/facebookresearch/nle">
     <img src="https://circleci.com/gh/facebookresearch/nle.svg?style=shield" />
   </a>
-  <a href="https://github.com/heiner/nle/actions/workflows/build_docker.yml">
+  <a href="https://github.com/heiner/nle/actions/workflows/test_and_deply.yml">
     <img src="https://github.com/heiner/nle/actions/workflows/test_and_deploy.yml/badge.svg?branch=main" />
   </a>
   <a href="https://pypi.python.org/pypi/nle/">

@@ -35,7 +35,7 @@ class TestDataset:
                 def nullcontext(*args, **kwargs):
                     yield
 
-                cm = lambda: nullcontext()
+                cm = nullcontext
         with cm() as tp:
             yield tp
 

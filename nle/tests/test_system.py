@@ -9,7 +9,8 @@ import pytest
 
 import nle  # noqa: F401
 
-START_METHODS = [m for m in ("fork", "spawn") if m in mp.get_all_start_methods()]
+# TODO(heiner): Re-enable spawn after fixing issue with it on MacOS
+START_METHODS = [m for m in ("fork",) if m in mp.get_all_start_methods()]
 
 
 def new_env_one_step():

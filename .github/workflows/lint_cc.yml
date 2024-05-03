@@ -13,8 +13,6 @@ on:
       - "src/nle**.c"
       - "include/nle**.h"
       - "win/rl/**.cc"
-  schedule:
-    - cron: "0 6,18 * * *"
 
 jobs:
   check_cc:

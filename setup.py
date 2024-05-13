@@ -108,7 +108,7 @@ extras_deps = {
         "pytest>=6.2.5",
         "pytest-benchmark>=3.4.1",
         "sphinx>=2.4.4",
-        "sphinx-rtd-theme==0.4.3",
+        "sphinx-rtd-theme>=0.4.3",
         "setuptools>=69.5.1",
         "ruff>=0.4.3",
     ],
@@ -162,7 +162,7 @@ if __name__ == "__main__":
         ext_modules=[setuptools.Extension("nle", sources=[])],
         cmdclass={"build_ext": CMakeBuild},
         setup_requires=["pybind11>=2.2"],
-        install_requires=["pybind11>=2.2", "numpy>=1.16", "gym>=0.15,<=0.23"],
+        install_requires=["pybind11>=2.2", "numpy>=1.16", "gymnasium==0.29.1"],
         extras_require=extras_deps,
         python_requires=">=3.8",
         classifiers=[

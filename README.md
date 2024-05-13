@@ -3,7 +3,7 @@
 --------------------------------------------------------------------------------
 
 <p align="center">
-  <a href="https://github.com/heiner/nle/actions/workflows/test_and_deply.yml">
+  <a href="https://github.com/heiner/nle/actions/workflows/test_and_deploy.yml">
     <img src="https://github.com/heiner/nle/actions/workflows/test_and_deploy.yml/badge.svg?branch=main" />
   </a>
   <a href="https://pypi.python.org/pypi/nle/">

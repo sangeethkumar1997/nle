@@ -206,3 +206,10 @@ nle/version.py
 nle_data/
 nle/fbs/
 nle/nethackdir
+
+# CMake
+CMakeFiles
+CMakeCache.txt
+
+# cibuildwheel
+wheelhouse/

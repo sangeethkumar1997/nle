@@ -103,6 +103,18 @@ file(
   "win/tty/*.c"
   "win/rl/winrl.cc")
 
+# static version of bzip2 library
+add_library(
+  bz2_static STATIC
+  "third_party/bzip2/blocksort.c"
+  "third_party/bzip2/bzlib.c"
+  "third_party/bzip2/compress.c"
+  "third_party/bzip2/crctable.c"
+  "third_party/bzip2/decompress.c"
+  "third_party/bzip2/huffman.c"
+  "third_party/bzip2/randtable.c")
+target_link_libraries(bz2_static)
+
 # terminal emulator library
 add_library(tmt STATIC "third_party/libtmt/tmt.c")
 set_target_properties(tmt PROPERTIES C_STANDARD 11)
@@ -114,13 +126,14 @@ set_target_properties(nethack PROPERTIES CXX_STANDARD 14 SUFFIX ".so")
 target_include_directories(
   nethack
   PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${NLE_INC_GEN} /usr/local/include
-         ${CMAKE_CURRENT_SOURCE_DIR}/third_party/libtmt)
-target_link_directories(nethack PUBLIC /usr/local/lib)
+         ${CMAKE_CURRENT_SOURCE_DIR}/third_party/libtmt
+         ${CMAKE_CURRENT_SOURCE_DIR}/third_party/bzip2)
+# target_link_directories(nethack PUBLIC /usr/local/lib)
 
 # Careful with -DMONITOR_HEAP: Ironically, it fails to fclose FILE* heaplog.
 # target_compile_definitions(nethack PUBLIC "$<$<CONFIG:DEBUG>:MONITOR_HEAP>")
 
-target_link_libraries(nethack PUBLIC m fcontext bz2 tmt)
+target_link_libraries(nethack PUBLIC m fcontext bz2_static tmt)
 
 # dlopen wrapper library
 add_library(nethackdl STATIC "sys/unix/nledl.c")
@@ -154,9 +167,11 @@ add_library(
   converter STATIC ${CMAKE_CURRENT_SOURCE_DIR}/third_party/converter/converter.c
                    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/converter/stripgfx.c)
 target_include_directories(
-  converter PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/third_party/libtmt
-                   ${CMAKE_CURRENT_SOURCE_DIR}/third_party/converter)
-target_link_libraries(converter PUBLIC bz2 tmt)
+  converter
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/third_party/libtmt
+         ${CMAKE_CURRENT_SOURCE_DIR}/third_party/converter
+         ${CMAKE_CURRENT_SOURCE_DIR}/third_party/bzip2)
+target_link_libraries(converter PUBLIC bz2_static tmt)
 if(CMAKE_BUILD_TYPE MATCHES Debug)
   target_compile_options(converter PRIVATE -Wall -Wextra -pedantic -Werror)
 endif()

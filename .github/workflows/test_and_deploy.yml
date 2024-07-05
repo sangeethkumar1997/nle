@@ -5,7 +5,7 @@ on:
     branches: [main]
   pull_request:
   release:
-    types: [released]
+    types: [prereleased, released]
 jobs:
   test_repo:
     name: Test on ${{ matrix.os }} w/ Py${{ matrix.python-version }}
@@ -114,6 +114,7 @@ jobs:
           path: dist/
   build_wheels:
     name: Build wheels on Ubuntu
+    needs: test_repo
     runs-on: ubuntu-20.04 # Can be also run for macOS
     steps:
       - uses: actions/checkout@v3
@@ -125,8 +126,8 @@ jobs:
         with:
           platforms: all
       - name: Build wheels
-        if: github.event_name != 'release' && github.event.action != 'released'
-        uses: pypa/cibuildwheel@v2.15.0 # The main configuration is in pyproject.toml
+        if: github.event_name != 'release'
+        uses: pypa/cibuildwheel@v2.19.2 # The main configuration is in pyproject.toml
         env:
           CIBW_BUILD: "cp311-manylinux*" # Build only python 3.11 wheels for testing
           # Increase verbosity to see what's going on in the build in case of failure
@@ -134,8 +135,8 @@ jobs:
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
             auditwheel show {wheel} && auditwheel repair -w {dest_dir} {wheel}
       - name: Build release wheels
-        if: github.event_name == 'release' && github.event.action == 'released'
-        uses: pypa/cibuildwheel@v2.15.0 # The main configuration is in pyproject.toml
+        if: github.event_name == 'release' && (github.event.action == 'released' || github.event.action == 'prereleased')
+        uses: pypa/cibuildwheel@v2.19.2 # The main configuration is in pyproject.toml
         env:
           # Set NLE_RELEASE_BUILD to 1 to build release wheels
           CIBW_ENVIRONMENT: "NLE_RELEASE_BUILD=1"
@@ -175,6 +176,46 @@ jobs:
           python -m pytest --import-mode=append -svx $REPONAME/nle/tests
           popd
 
+  # Use prereleases to test publish the artefacts to testpypi
+  test_deploy:
+    name: Deploy artefacts to testpypi
+    needs: [test_sdist_3_11, test_manylinux_3_11]
+    if: github.event_name == 'release' && github.event.action == 'prereleased'
+    runs-on: ubuntu-latest
+    environment:
+      name: prerelease
+      url: https://testpypi.org/p/nle
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check version matches release tag
+        run: |
+          echo "v$(cat version.txt)"
+          echo "${{ github.event.release.tag_name }}"
+          [[ "${{ github.event.release.tag_name }}" == "v$(cat version.txt)" ]]
+      - name: Get sdist artifact # Get sdist artifact from the test_sdist job
+        uses: actions/download-artifact@v3
+        with:
+          name: python-sdist
+          path: dist
+      - name: Get wheels artifacts # Get wheels artifacts from the build_wheels job
+        uses: actions/download-artifact@v3
+        with:
+          name: python-wheels
+          path: dist
+      - name: Report dist contents
+        run: |
+          pwd
+          ls -R
+          ls -al .
+          ls -R dist/
+          ls -al dist/
+      - name: Publish package to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+        
   # TODO move this to separate workflow whenever github decides to provide basic
   #      functionalities like workflow dependencies :|
   deploy_sdist:

@@ -64,15 +64,6 @@ add_compile_definitions(
   NOCWD_ASSUMPTIONS
   NLE_USE_TILES)
 
-option(USE_SEEDING "Use seeding support in NLE" ON)
-
-if(USE_SEEDING)
-  add_compile_definitions(NLE_ALLOW_SEEDING)
-  message("Seeding enabled.")
-else()
-  message("Seeding disabled.")
-endif()
-
 set(NLE_SRC ${nle_SOURCE_DIR}/src)
 set(NLE_INC ${nle_SOURCE_DIR}/include)
 set(NLE_DAT ${nle_SOURCE_DIR}/dat)
@@ -139,7 +130,10 @@ target_link_libraries(nethack PUBLIC m fcontext bz2_static tmt)
 
 # dlopen wrapper library
 add_library(nethackdl STATIC "sys/unix/nledl.c")
-target_include_directories(nethackdl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(
+  nethackdl
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
+         ${CMAKE_CURRENT_SOURCE_DIR}/third_party/deboost.context/include)
 target_link_libraries(nethackdl PUBLIC dl)
 
 # rlmain C++ (test) binary

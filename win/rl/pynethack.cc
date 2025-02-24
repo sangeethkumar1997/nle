@@ -126,6 +126,8 @@ class Nethack
         if (found != std::string::npos && found + 1 < ttyrec.length())
             strncpy(settings_.ttyrecname, &ttyrec.c_str()[found + 1],
                     ttyrec.length() - found - 1);
+
+        settings_.initial_seeds.use_init_seeds = false;
     }
 
     Nethack(std::string dlpath, std::string hackdir,
@@ -274,32 +276,23 @@ class Nethack
     void
     set_initial_seeds(unsigned long core, unsigned long disp, bool reseed)
     {
-#ifdef NLE_ALLOW_SEEDING
-        seed_init_.seeds[0] = core;
-        seed_init_.seeds[1] = disp;
-        seed_init_.reseed = reseed;
-        use_seed_init = true;
-#else
-        throw std::runtime_error("Seeding not enabled");
-#endif
+        settings_.initial_seeds.seeds[0] = core;
+        settings_.initial_seeds.seeds[1] = disp;
+        settings_.initial_seeds.reseed = reseed;
+        settings_.initial_seeds.use_init_seeds = true;
     }
 
     void
     set_seeds(unsigned long core, unsigned long disp, bool reseed)
     {
-#ifdef NLE_ALLOW_SEEDING
         if (!nle_)
             throw std::runtime_error("set_seed called without reset()");
         nle_set_seed(nle_, core, disp, reseed);
-#else
-        throw std::runtime_error("Seeding not enabled");
-#endif
     }
 
     std::tuple<unsigned long, unsigned long, bool>
     get_seeds()
     {
-#ifdef NLE_ALLOW_SEEDING
         if (!nle_)
             throw std::runtime_error("get_seed called without reset()");
         std::tuple<unsigned long, unsigned long, bool> result;
@@ -309,9 +302,6 @@ class Nethack
                      &reseed);
         std::get<2>(result) = reseed;
         return result;
-#else
-        throw std::runtime_error("Seeding not enabled");
-#endif
     }
 
     boolean
@@ -344,14 +334,14 @@ class Nethack
         if (!ttyrec)
             strncpy(settings_.ttyrecname, "", sizeof(settings_.ttyrecname));
 
+        bool *seeded = &(settings_.initial_seeds.use_init_seeds);
         if (!nle_) {
-            nle_ =
-                nle_start(dlpath_.c_str(), &obs_, ttyrec ? ttyrec : ttyrec_,
-                          use_seed_init ? &seed_init_ : nullptr, &settings_);
+            nle_ = nle_start(dlpath_.c_str(), &obs_,
+                             ttyrec ? ttyrec : ttyrec_, &settings_);
         } else
-            nle_reset(nle_, &obs_, ttyrec,
-                      use_seed_init ? &seed_init_ : nullptr, &settings_);
-        use_seed_init = false;
+            nle_reset(nle_, &obs_, ttyrec, &settings_);
+        *seeded = false; /* Once the seeds have been used, prevent them being
+                            reused. */
 
         if (obs_.done)
             throw std::runtime_error("NetHack done right after reset");
@@ -360,8 +350,6 @@ class Nethack
     std::string dlpath_;
     nle_obs obs_;
     std::vector<py::object> py_buffers_;
-    nle_seeds_init_t seed_init_;
-    bool use_seed_init = false;
     nledl_ctx *nle_ = nullptr;
     std::FILE *ttyrec_ = nullptr;
     nle_settings settings_;
@@ -447,13 +435,6 @@ PYBIND11_MODULE(_pynethack, m)
     mn.attr("NLE_BL_DLEVEL") = py::int_(NLE_BL_DLEVEL);
     mn.attr("NLE_BL_CONDITION") = py::int_(NLE_BL_CONDITION);
     mn.attr("NLE_BL_ALIGN") = py::int_(NLE_BL_ALIGN);
-
-    mn.attr("NLE_ALLOW_SEEDING") =
-#ifdef NLE_ALLOW_SEEDING
-        true;
-#else
-        false;
-#endif
 
     /* NetHack constants. */
     mn.attr("ROWNO") = py::int_(ROWNO);

@@ -14,6 +14,7 @@
 #include "dlb.h"
 
 #include "nle.h"
+#include "nlernd.h"
 
 #ifdef NLE_BZ2_TTYRECS
 #include <bzlib.h>
@@ -364,18 +365,6 @@ nle_spawn_monsters()
     return settings.spawn_monsters;
 }
 
-nle_seeds_init_t *nle_seeds_init;
-
-/* See rng.c. */
-extern int FDECL(whichrng, (int FDECL((*fn), (int) )));
-
-/* See hacklib.c. */
-extern int FDECL(set_random, (unsigned long, int FDECL((*fn), (int) )));
-/* An appropriate version of this must always be provided in
-   port-specific code somewhere. It returns a number suitable
-   as seed for the random number generator */
-extern unsigned long NDECL(sys_random_seed);
-
 char *
 nle_getenv(const char *name)
 {
@@ -399,26 +388,8 @@ nle_fopen_wizkit_file()
     return fmemopen(settings.wizkit, len, "r");
 }
 
-/*
- * Initializes the random number generator.
- * Originally in hacklib.c.
- */
-void
-init_random(int FDECL((*fn), (int) ))
-{
-#ifdef NLE_ALLOW_SEEDING
-    if (nle_seeds_init) {
-        set_random(nle_seeds_init->seeds[whichrng(fn)], fn);
-        has_strong_rngseed = nle_seeds_init->reseed;
-        return;
-    }
-#endif
-    set_random(sys_random_seed(), fn);
-}
-
 nle_ctx_t *
-nle_start(nle_obs *obs, FILE *ttyrec, nle_seeds_init_t *seed_init,
-          nle_settings *settings_p)
+nle_start(nle_obs *obs, FILE *ttyrec, nle_settings *settings_p)
 {
     /* Set CO and LI to control ttyrec output size. */
     CO = NLE_TERM_CO;
@@ -427,7 +398,6 @@ nle_start(nle_obs *obs, FILE *ttyrec, nle_seeds_init_t *seed_init,
     settings = *settings_p;
 
     nle_ctx_t *nle = init_nle(ttyrec, obs);
-    nle_seeds_init = seed_init;
 
     nle->stack = create_fcontext_stack(STACK_SIZE);
     nle->generatorcontext =
@@ -438,8 +408,6 @@ nle_start(nle_obs *obs, FILE *ttyrec, nle_seeds_init_t *seed_init,
     nle->generatorcontext = t.ctx;
     nle->done = (t.data == NULL);
     obs->done = nle->done;
-    nle_seeds_init =
-        NULL; /* Don't set to *these* seeds on subsequent reseeds, if any. */
 
     if (nle->ttyrec) {
         if (obs->blstats) {
@@ -521,31 +489,6 @@ nle_end(nle_ctx_t *nle)
     destroy_fcontext_stack(&nle->stack);
     free(nle);
 }
-
-#ifdef NLE_ALLOW_SEEDING
-void
-nle_set_seed(nle_ctx_t *nle, unsigned long core, unsigned long disp,
-             boolean reseed)
-{
-    /* Keep up to date with rnglist[] in rnd.c. */
-    set_random(core, rn2);
-    set_random(disp, rn2_on_display_rng);
-
-    /* Determines logic in reseed_random() in hacklib.c. */
-    has_strong_rngseed = reseed;
-};
-
-extern unsigned long nle_seeds[];
-
-void
-nle_get_seed(nle_ctx_t *nle, unsigned long *core, unsigned long *disp,
-             boolean *reseed)
-{
-    *core = nle_seeds[0];
-    *disp = nle_seeds[1];
-    *reseed = has_strong_rngseed;
-}
-#endif
 
 /* From unixtty.c */
 /* fatal error */

@@ -113,9 +113,10 @@ nle_end(nledl_ctx *nledl)
 
 void
 nle_set_seed(nledl_ctx *nledl, unsigned long core, unsigned long disp,
-             char reseed)
+             char reseed, unsigned long lgen)
 {
-    void (*set_seed)(void *, unsigned long, unsigned long, char);
+    void (*set_seed)(void *, unsigned long, unsigned long, char,
+                     unsigned long);
 
     set_seed = dlsym(nledl->dlhandle, "nle_set_seed");
 
@@ -125,14 +126,15 @@ nle_set_seed(nledl_ctx *nledl, unsigned long core, unsigned long disp,
         exit(EXIT_FAILURE);
     }
 
-    set_seed(nledl->nle_ctx, core, disp, reseed);
+    set_seed(nledl->nle_ctx, core, disp, reseed, lgen);
 }
 
 void
 nle_get_seed(nledl_ctx *nledl, unsigned long *core, unsigned long *disp,
-             char *reseed)
+             char *reseed, unsigned long *lgen, bool *lgen_in_use)
 {
-    void (*get_seed)(void *, unsigned long *, unsigned long *, char *);
+    void (*get_seed)(void *, unsigned long *, unsigned long *, char *,
+                     unsigned long *, bool *);
 
     get_seed = dlsym(nledl->dlhandle, "nle_get_seed");
 
@@ -145,5 +147,5 @@ nle_get_seed(nledl_ctx *nledl, unsigned long *core, unsigned long *disp,
     /* Careful here. NetHack has different ideas of what a boolean is
      * than C++ (see global.h and SKIP_BOOLEAN). But one byte should be fine.
      */
-    get_seed(nledl->nle_ctx, core, disp, reseed);
+    get_seed(nledl->nle_ctx, core, disp, reseed, lgen, lgen_in_use);
 }

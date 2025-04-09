@@ -124,13 +124,13 @@ def tty_render(chars, colors, cursor=None):
     """Returns chars as string with ANSI escape sequences.
 
     Args:
-      chars: A row x columns numpy array of chars.
-      colors: A numpy array of colors (0-15), same shape as chars.
-      cursor: An optional (row, column) index for the cursor,
+    chars: A row x columns numpy array of chars.
+    colors: A numpy array of colors (0-15), same shape as chars.
+    cursor: An optional (row, column) index for the cursor,
         displayed as underlined.
 
     Returns:
-      A string with chars decorated by ANSI escape sequences.
+    A string with chars decorated by ANSI escape sequences.
     """
     rows, cols = chars.shape
     if cursor is None:
@@ -280,10 +280,10 @@ class Nethack:
         self._dl = None
         self._tempdir = None
 
-    def set_initial_seeds(self, core, disp, reseed=False):
-        self._pynethack.set_initial_seeds(core, disp, reseed)
+    def set_initial_seeds(self, core, disp, reseed=False, lgen=None):
+        self._pynethack.set_initial_seeds(core, disp, reseed, lgen)
 
-    def set_current_seeds(self, core=None, disp=None, reseed=False):
+    def set_current_seeds(self, core=None, disp=None, reseed=False, lgen=None):
         """Sets the seeds of NetHack right now.
 
         If either of the three arguments is None, its current value will be
@@ -301,11 +301,12 @@ class Nethack:
                 NetHack 3.6 reseeds with true randomness every now and then. This
                 flag enables or disables this behavior. If set to True, trajectories
                 won't be reproducible.
+            lgen [int or None]: Special NLE RNG for generating levels
 
         Returns:
             [list] the seeds used by NetHack.
         """
-        seeds = [core, disp, reseed]
+        seeds = [core, disp, reseed, lgen]
         if any(s is None for s in seeds):
             if all(s is None for s in seeds):
                 return None
@@ -313,7 +314,7 @@ class Nethack:
                 if s is None:
                     seeds[i] = s0
             return self._pynethack.set_seeds(*seeds)
-        return self._pynethack.set_seeds(core, disp, reseed)
+        return self._pynethack.set_seeds(core, disp, reseed, lgen)
 
     def get_current_seeds(self):
         return self._pynethack.get_seeds()

@@ -128,6 +128,7 @@ class Nethack
                     ttyrec.length() - found - 1);
 
         settings_.initial_seeds.use_init_seeds = false;
+        settings_.initial_seeds.use_lgen_seed = false;
     }
 
     Nethack(std::string dlpath, std::string hackdir,
@@ -274,34 +275,71 @@ class Nethack
     }
 
     void
-    set_initial_seeds(unsigned long core, unsigned long disp, bool reseed)
+    set_initial_seeds(unsigned long core, unsigned long disp, bool reseed,
+                      py::object pyLgen)
     {
         settings_.initial_seeds.seeds[0] = core;
         settings_.initial_seeds.seeds[1] = disp;
         settings_.initial_seeds.reseed = reseed;
         settings_.initial_seeds.use_init_seeds = true;
+
+        /* The level generation seed's optional so may be passed as a Python
+           None object, if there isn't any seed. Also, catches other rubbish
+           that might be passed in. */
+        try {
+            settings_.initial_seeds.lgen_seed = pyLgen.cast<unsigned long>();
+            settings_.initial_seeds.use_lgen_seed = true;
+        } catch (py::cast_error) {
+            settings_.initial_seeds.lgen_seed = 0;
+            settings_.initial_seeds.use_lgen_seed = false;
+        }
     }
 
     void
-    set_seeds(unsigned long core, unsigned long disp, bool reseed)
+    set_seeds(unsigned long core, unsigned long disp, bool reseed,
+              py::object pyLgen)
     {
         if (!nle_)
             throw std::runtime_error("set_seed called without reset()");
-        nle_set_seed(nle_, core, disp, reseed);
+
+        unsigned long lgen;
+        try {
+            lgen = pyLgen.cast<unsigned long>();
+        } catch (py::cast_error) {
+            /* Is 0 a valid seed number? Does nothing even matter?
+               A philosophical question for another day and time. */
+            lgen = 0;
+        }
+        nle_set_seed(nle_, core, disp, reseed, lgen);
     }
 
-    std::tuple<unsigned long, unsigned long, bool>
+    std::tuple<unsigned long, unsigned long, bool, py::object>
     get_seeds()
     {
         if (!nle_)
             throw std::runtime_error("get_seed called without reset()");
-        std::tuple<unsigned long, unsigned long, bool> result;
-        char
-            reseed; /* NetHack's booleans are not necessarily C++ bools ... */
+
+        std::tuple<unsigned long, unsigned long, bool, unsigned long, bool>
+            result;
+
+        /* NetHack's booleans are not necessarily C++ bools ... */
+        char reseed;
+
         nle_get_seed(nle_, &std::get<0>(result), &std::get<1>(result),
-                     &reseed);
-        std::get<2>(result) = reseed;
-        return result;
+                     &reseed, &std::get<3>(result), &std::get<4>(result));
+
+        /* Package up the seeds as the level generation seed is optional */
+        std::tuple<unsigned long, unsigned long, bool, py::object> seeds;
+        std::get<0>(seeds) = std::get<0>(result);
+        std::get<1>(seeds) = std::get<1>(result);
+        std::get<2>(seeds) = reseed;
+        /* Only want to return the level generation seed if it's in use */
+        if (std::get<4>(result)) {
+            std::get<3>(seeds) = py::cast(std::get<3>(result));
+        } else {
+            std::get<3>(seeds) = py::none();
+        }
+        return seeds;
     }
 
     boolean
@@ -334,14 +372,15 @@ class Nethack
         if (!ttyrec)
             strncpy(settings_.ttyrecname, "", sizeof(settings_.ttyrecname));
 
-        bool *seeded = &(settings_.initial_seeds.use_init_seeds);
         if (!nle_) {
             nle_ = nle_start(dlpath_.c_str(), &obs_,
                              ttyrec ? ttyrec : ttyrec_, &settings_);
         } else
             nle_reset(nle_, &obs_, ttyrec, &settings_);
-        *seeded = false; /* Once the seeds have been used, prevent them being
-                            reused. */
+
+        /* Once the seeds have been used, prevent them being reused. */
+        settings_.initial_seeds.use_init_seeds = false;
+        settings_.initial_seeds.use_lgen_seed = false;
 
         if (obs_.done)
             throw std::runtime_error("NetHack done right after reset");

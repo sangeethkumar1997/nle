@@ -285,7 +285,7 @@ class TestGymEnvRollout:
         obs0 = env0.reset()
         seeds0 = env0.unwrapped.get_seeds()
 
-        assert seeds0 == (123456, 789012, False)
+        assert seeds0 == (123456, 789012, False, None)
 
         env1.unwrapped.seed(*seeds0)
         obs1 = env1.reset()
@@ -308,6 +308,7 @@ class TestGymEnvRollout:
             random.randrange(sys.maxsize),
             random.randrange(sys.maxsize),
             False,
+            random.randrange(sys.maxsize),
         )
         env0.unwrapped.seed(*initial_seeds)
         obs0 = env0.reset()
@@ -321,6 +322,52 @@ class TestGymEnvRollout:
 
         np.testing.assert_equal(obs0, obs1)
         compare_rollouts(env0, env1, rollout_len)
+
+    def test_seed_lgen(self, env_name, rollout_len):
+        """Tests that the lgen seed returns deterministic dungeon structure"""
+        if env_name.startswith("NetHackChallenge"):
+            pytest.skip("Not running seed test on NetHackChallenge")
+
+        env = gym.make(env_name)
+        env.unwrapped.seed(lgen=1)
+        obs = env.reset()
+
+        assert env.unwrapped.get_seeds()[3] == 1
+
+        # check for the first room the agent appears.
+        assert obs[0]["chars"][3][61] == ord("-")
+        assert obs[0]["chars"][4][51] == ord(".")
+        assert obs[0]["chars"][5][59] == ord(".")
+        assert obs[0]["chars"][7][65] == ord("|")
+        assert obs[0]["chars"][7][51] == ord("@")
+
+    def test_seeds_with_lgen(self, env_name, rollout_len):
+        """Tests that the lgen seed returns deterministic dungeon structure,
+        when passed alongside other NetHack seed values"""
+        if env_name.startswith("NetHackChallenge"):
+            pytest.skip("Not running seed test on NetHackChallenge")
+
+        env = gym.make(env_name)
+        env.unwrapped.seed(1234, 5678, False, 1)
+        obs = env.reset()
+
+        assert env.unwrapped.get_seeds()[3] == 1
+
+        # check for the first room the agent appears.
+        assert obs[0]["chars"][3][61] == ord("-")
+        assert obs[0]["chars"][4][51] == ord(".")
+        assert obs[0]["chars"][5][59] == ord(".")
+        assert obs[0]["chars"][7][65] == ord("|")
+        assert obs[0]["chars"][7][51] == ord("@")
+
+    # Further level-generation tests:
+    # There should be a test that compares level two in multiple
+    # rollouts. That requires an agent that can successfully and
+    # always find the stairs and descend to the second level. To
+    # say nothing about deeper levels of the dungeon! For now it
+    # doesn't exist, and so remains an active area of research.
+    #
+    # Left as an exercise for the student?
 
     def test_render_ansi(self, env_name, rollout_len):
         env = gym.make(env_name, render_mode="ansi")

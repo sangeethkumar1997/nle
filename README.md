@@ -1,16 +1,16 @@
-![NetHack Learning Environment (NLE)](https://github.com/heiner/nle/raw/main/dat/nle/logo.png)
+![NetHack Learning Environment (NLE)](https://github.com/NetHack-LE/nle/raw/main/dat/nle/logo.png)
 
 --------------------------------------------------------------------------------
 
 <p align="center">
-  <a href="https://github.com/heiner/nle/actions/workflows/test_and_deploy.yml"><img src="https://github.com/heiner/nle/actions/workflows/test_and_deploy.yml/badge.svg?branch=main" /></a>
+  <a href="https://github.com/NetHack-LE/nle/actions/workflows/test_and_deploy.yml"><img src="https://github.com/NetHack-LE/nle/actions/workflows/test_and_deploy.yml/badge.svg?branch=main" /></a>
   <a href="https://pypi.python.org/pypi/nle/"><img src="https://img.shields.io/pypi/v/nle.svg" /></a>
   <a href="https://pepy.tech/project/nle"><img src="https://static.pepy.tech/personalized-badge/nle?period=total&units=international_system&left_color=black&right_color=orange&left_text=Downloads" /></a>
   <a href="https://twitter.com/NetHack_LE"><img src="https://img.shields.io/twitter/follow/NetHack_LE?label=Twitter&style=social" alt="Twitter" /></a>
  </p>
 
 The NetHack Learning Environment (NLE) is a Reinforcement Learning environment originally presented at [NeurIPS 2020](https://neurips.cc/Conferences/2020).
-NLE is based on [NetHack 3.6.6](https://github.com/NetHack/NetHack/tree/NetHack-3.6.6_PostRelease) and designed to provide a standard RL interface to the game, and comes with tasks that function as a first step to evaluate agents on this new environment.
+This version of NLE is based on [NetHack 3.6.7](https://github.com/NetHack/NetHack/releases/tag/NetHack-3.6.7_Released) and designed to provide a standard RL interface to the game, and comes with tasks that function as a first step to evaluate agents on this new environment.
 
 NetHack is one of the oldest and arguably most impactful videogames in history,
 as well as being one of the hardest roguelikes currently being played by humans.
@@ -24,45 +24,10 @@ You can read more about NLE in the [NeurIPS 2020 paper](https://arxiv.org/abs/20
 README](./README.nh), at [nethack.org](https://nethack.org/), and on the
 [NetHack wiki](https://nethackwiki.com).
 
-![Example of an agent running on NLE](https://github.com/heiner/nle/raw/main/dat/nle/example_run.gif)
+![Example of an agent running on NLE](https://github.com/NetHack-LE/nle/raw/main/dat/nle/example_run.gif)
 
 This version of NLE uses the [Farama Organisation Gymnasium Environment](https://gymnasium.farama.org) APIs.
 
-### NLE Language Wrapper
-
-We thank [ngoodger](https://github.com/ngoodger) for implementing the [NLE Language Wrapper](https://github.com/ngoodger/nle-language-wrapper) that translates the non-language observations from NetHack tasks into similar language representations. Actions can also be optionally provided in text form which are converted to the Discrete actions of the NLE.
-
-### NetHack Learning Dataset
-
-The NetHack Learning Dataset (NLD) code now ships with `NLE`, allowing users to the load large-scale datasets featured in [Dungeons and Data: A Large-Scale NetHack Dataset](), while also generating and loading their own datasets.
-
-```python
-import nle.dataset as nld
-
-if not nld.db.exists():
-    nld.db.create()
-    # NB: Different methods are used for data based on NLE and data from NAO.
-    nld.add_nledata_directory("/path/to/nld-aa", "nld-aa-v0")
-    nld.add_altorg_directory("/path/to/nld-nao", "nld-nao-v0")
-
-dataset = nld.TtyrecDataset("nld-aa-v0", batch_size=128, ...)
-for i, mb in enumerate(dataset):
-    foo(mb) # etc...
-```
-
-For information on how to download NLD-AA and NLD-NAO, see the dataset doc [here](./DATASET.md).
-
-Otherwise checkout the tutorial Colab notebook [here](https://colab.research.google.com/drive/1GRP15SbOEDjbyhJGMDDb2rXAptRQztUD?usp=sharing).
-
-# Papers using the NetHack Learning Environment
-- Izumiya and Simo-Serra [Inventory Management with Attention-Based Meta Actions](https://esslab.jp/~ess/publications/IzumiyaCOG2021.pdf) (Waseda University, CoG 2021).
-- Samvelyan et al. [MiniHack the Planet: A Sandbox for Open-Ended Reinforcement Learning Research](https://arxiv.org/abs/2109.13202) (FAIR, UCL, Oxford, NeurIPS 2021).
-- Zhang et al. [BeBold: Exploration Beyond the Boundary of Explored Regions](https://arxiv.org/abs/2012.08621) (Berkley, FAIR, Dec 2020).
-- Küttler et al. [The NetHack Learning Environment](https://arxiv.org/abs/2006.13760) (FAIR, Oxford, NYU, Imperial, UCL, NeurIPS 2020).
-
-Open a [pull
-request](https://github.com/heiner/nle/edit/main/README.md)
-to add papers.
 
 # Getting started
 
@@ -72,7 +37,7 @@ with other gym (or Gynmasium) / RL environments.
 
 ## Installation
 
-NLE requires `python>=3.8`, `cmake>=3.18` to be installed and available both when building the
+NLE requires `python>=3.10`, `cmake>=3.18` to be installed and available both when building the
 package, and at runtime.
 
 On **MacOS**, one can use `Homebrew` as follows:
@@ -101,7 +66,7 @@ Afterwards it's a matter of setting up your environment. We advise using a conda
 environment for this:
 
 ```bash
-$ conda create -y -n nle python=3.8
+$ conda create -y -n nle python=3.10
 $ conda activate nle
 $ pip install nle
 ```
@@ -110,7 +75,7 @@ $ pip install nle
 NOTE: If you want to extend / develop NLE, please install the package as follows:
 
 ``` bash
-$ git clone https://github.com/heiner/nle --recursive
+$ git clone https://github.com/NetHack-LE/nle --recursive
 $ pip install -e ".[dev]"
 $ pre-commit install
 ```
@@ -119,7 +84,7 @@ $ pre-commit install
 ## Docker
 
 We have provided some docker images. Please see the [relevant
-README](docker/README.md).
+README](https://github.com/NetHack-LE/nle/blob/main/docker/README.md). 
 
 
 ## Trying it out
@@ -200,12 +165,51 @@ $ python -m nle.scripts.plot
                                        steps
 ```
 
+### NLE Language Wrapper
+
+We thank [ngoodger](https://github.com/ngoodger) for implementing the [NLE Language Wrapper](https://github.com/ngoodger/nle-language-wrapper) that translates the non-language observations from NetHack tasks into similar language representations. Actions can also be optionally provided in text form which are converted to the Discrete actions of the NLE.
+
+### NetHack Learning Dataset
+
+The NetHack Learning Dataset (NLD) code now ships with `NLE`, allowing users to the load large-scale datasets featured in [Dungeons and Data: A Large-Scale NetHack Dataset](), while also generating and loading their own datasets.
+
+```python
+import nle.dataset as nld
+
+if not nld.db.exists():
+    nld.db.create()
+    # NB: Different methods are used for data based on NLE and data from NAO.
+    nld.add_nledata_directory("/path/to/nld-aa", "nld-aa-v0")
+    nld.add_altorg_directory("/path/to/nld-nao", "nld-nao-v0")
+
+dataset = nld.TtyrecDataset("nld-aa-v0", batch_size=128, ...)
+for i, mb in enumerate(dataset):
+    foo(mb) # etc...
+```
+
+For information on how to download NLD-AA and NLD-NAO, see the dataset doc [here](https://github.com/NetHack-LE/nle/blob/main/DATASET.md).
+
+Otherwise checkout the tutorial Colab notebook [here](https://colab.research.google.com/drive/1GRP15SbOEDjbyhJGMDDb2rXAptRQztUD?usp=sharing).
+
+# Papers using the NetHack Learning Environment
+- Paglieri et al. [BALROG: Benchmarking Agentic LLM and VLM Reasoning On Games](https://arxiv.org/abs/2411.13543) (UCL, IDEAS NCBR, NYU, Oxford, Anthropic, ICLR 2025)
+- Klissarov et al. [MaestroMotif: Skill Design from Artificial Intelligence Feedback](https://arxiv.org/abs/2412.08542) (Mila, FAIR, UT Austin, Alberta, Amii, ICLR 2025) 
+- Klissarov et al. [Motif: Intrinsic Motivation from Artificial Intelligence Feedback](https://arxiv.org/abs/2310.00166) (Mila, FAIR, UT Austin, ICLR 2024) 
+- Izumiya and Simo-Serra [Inventory Management with Attention-Based Meta Actions](https://esslab.jp/~ess/publications/IzumiyaCOG2021.pdf) (Waseda University, CoG 2021).
+- Samvelyan et al. [MiniHack the Planet: A Sandbox for Open-Ended Reinforcement Learning Research](https://arxiv.org/abs/2109.13202) (FAIR, UCL, Oxford, NeurIPS 2021).
+- Zhang et al. [BeBold: Exploration Beyond the Boundary of Explored Regions](https://arxiv.org/abs/2012.08621) (Berkley, FAIR, Dec 2020).
+- Küttler et al. [The NetHack Learning Environment](https://arxiv.org/abs/2006.13760) (FAIR, Oxford, NYU, Imperial, UCL, NeurIPS 2020).
+
+Open a [pull
+request](https://github.com/NetHack-LE/nle/edit/main/README.md)
+to add papers.
+
 
 
 # Contributing
 
 We welcome contributions to NLE. If you are interested in contributing please
-see [this document](./CONTRIBUTING.md).
+see [this document](https://github.com/NetHack-LE/nle/blob/main/CONTRIBUTING.md).
 
 
 # Architecture
@@ -217,7 +221,7 @@ repeated nethack games, and finally to binding of these games to Python
 `gymnasium` environment.
 
 If you want to learn more about the architecture of `nle` and how it works
-under the hood, checkout the [architecture document](./doc/nle/ARCHITECTURE.md).
+under the hood, checkout the [architecture document](https://github.com/NetHack-LE/nle/blob/main/doc/nle/ARCHITECTURE.md).
 This may be a useful starting point for anyone looking to contribute to the
 lower level elements of NLE.
 

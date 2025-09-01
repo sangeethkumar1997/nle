@@ -13,15 +13,12 @@
 #  HACKDIR
 #    If set, install NetHack's data files in this directory.
 #
-#  USE_SEEDING
-#    If set, seeding is disabled in all NLE environments.
-#
 import os
 import pathlib
+import shutil
 import subprocess
 import sys
-from distutils import spawn
-from distutils import sysconfig
+import sysconfig
 
 import setuptools
 from setuptools.command import build_ext
@@ -44,10 +41,7 @@ class CMakeBuild(build_ext.build_ext):
         os.makedirs(self.build_temp, exist_ok=True)
         build_type = "Debug" if self.debug else "Release"
 
-        generator = "Ninja" if spawn.find_executable("ninja") else "Unix Makefiles"
-
-        use_seeding = os.environ.get("USE_SEEDING", "ON")
-        use_seeding = {"1": "ON", "0": "OFF"}.get(use_seeding, use_seeding.upper())
+        generator = "Ninja" if shutil.which("ninja") else "Unix Makefiles"
 
         cmake_cmd = [
             "cmake",
@@ -60,9 +54,8 @@ class CMakeBuild(build_ext.build_ext):
             "-DCMAKE_INSTALL_PREFIX=%s" % sys.base_prefix,
             "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s" % output_path,
             "-DHACKDIR=%s" % hackdir_path,
-            "-DPYTHON_INCLUDE_DIR=%s" % sysconfig.get_python_inc(),
+            "-DPYTHON_INCLUDE_DIR=%s" % sysconfig.get_paths()["include"],
             "-DPYTHON_LIBRARY=%s" % sysconfig.get_config_var("LIBDIR"),
-            "-DUSE_SEEDING=%s" % use_seeding,
         ]
 
         build_cmd = ["cmake", "--build", ".", "--parallel"]
@@ -155,26 +148,26 @@ if __name__ == "__main__":
         long_description=long_description,
         long_description_content_type="text/markdown",
         author="The NLE Dev Team",
-        url="https://github.com/heiner/nle",
+        url="https://github.com/NetHack-LE/nle",
         license="NetHack General Public License",
         entry_points=entry_points,
         packages=packages,
         ext_modules=[setuptools.Extension("nle", sources=[])],
         cmdclass={"build_ext": CMakeBuild},
         setup_requires=["pybind11>=2.2"],
-        install_requires=["pybind11>=2.2", "numpy>=1.16", "gymnasium==0.29.1"],
+        install_requires=["pybind11>=2.2", "numpy>=1.16", "gymnasium==1.2.0"],
         extras_require=extras_deps,
-        python_requires=">=3.8",
+        python_requires=">=3.10",
         classifiers=[
             "License :: OSI Approved :: Nethack General Public License",
-            "Development Status :: 4 - Beta",
+            "Development Status :: 5 - Production/Stable",
             "Operating System :: POSIX :: Linux",
             "Operating System :: MacOS",
             "Programming Language :: Python :: 3",
-            "Programming Language :: Python :: 3.8",
-            "Programming Language :: Python :: 3.9",
             "Programming Language :: Python :: 3.10",
             "Programming Language :: Python :: 3.11",
+            "Programming Language :: Python :: 3.12",
+            "Programming Language :: Python :: 3.13",
             "Programming Language :: C",
             "Programming Language :: C++",
             "Topic :: Scientific/Engineering :: Artificial Intelligence",
